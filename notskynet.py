@@ -4,8 +4,12 @@ if len(sys.argv)<5:
     print("Usage: python notskynet.py endpoint prompt repo token")
     sys.exit(1)
 
-host, path = sys.argv[1].split("/",1)
-path = "/" + path
+_url = sys.argv[1]
+if "://" in _url:
+    _url = _url.split("://", 1)[1]
+_parts = _url.split("/", 1)
+host = _parts[0]
+path = "/" + _parts[1] if len(_parts) > 1 else "/"
 SCRIPT = __file__
 ITER   = 5
 PROMPT = sys.argv[2]
