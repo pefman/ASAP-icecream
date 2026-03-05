@@ -6,7 +6,7 @@ if len(sys.argv)<5:
 
 host, path = sys.argv[1].split("/",1)
 path = "/" + path
-SCRIPT = "main.py"
+SCRIPT = __file__
 ITER   = 5
 PROMPT = sys.argv[2]
 
