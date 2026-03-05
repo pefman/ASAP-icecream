@@ -38,8 +38,8 @@ def call_ai(code):
         "'if __name__ == \"__main__\"' so the file can be safely imported for syntax checks."
     )
     user_msg = f"{PROMPT}:\n\n{code}"
-    print(f"\n--- SYSTEM PROMPT ---\n{system_msg}")
-    print(f"\n--- USER PROMPT ({len(user_msg)} chars) ---\n{user_msg[:500]}{'...' if len(user_msg)>500 else ''}")
+    print(f"  system: {system_msg[:80]}...")
+    print(f"  user  : {PROMPT} (+ {len(code)} chars of code)")
     conn = http.client.HTTPSConnection(host)
     data = json.dumps({"model": MODEL, "messages": [
         {"role": "system", "content": system_msg},
@@ -57,7 +57,7 @@ def call_ai(code):
     if lines[0].startswith("```"): lines = lines[1:]
     if lines and lines[-1].startswith("```"): lines = lines[:-1]
     result = "\n".join(lines)
-    print(f"\n--- AI RESPONSE ({len(result)} chars) ---\n{result[:500]}{'...' if len(result)>500 else ''}\n--- END RESPONSE ---\n")
+    print(f"  response: {len(result)} chars received")
     return result
 
 def run(file):
