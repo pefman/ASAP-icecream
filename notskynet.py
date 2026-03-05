@@ -17,14 +17,14 @@ def get_model():
     return max(models, key=lambda m: m.get("meta",{}).get("n_params",0))["id"]
 
 MODEL = get_model()
-print(f"Endpoint : {host}{path}")
-print(f"Model    : {MODEL}")
-print(f"Script   : {SCRIPT}")
-print(f"Prompt   : {PROMPT}")
-print(f"Repo     : {REPO}")
-print(f"Iterations: {ITER}\n")
 REPO  = sys.argv[3]
 TOKEN = sys.argv[4]
+print(f"Endpoint  : {host}{path}")
+print(f"Model     : {MODEL}")
+print(f"Script    : {SCRIPT}")
+print(f"Prompt    : {PROMPT}")
+print(f"Repo      : {REPO}")
+print(f"Iterations: {ITER}\n")
 
 def call_ai(code):
     conn = http.client.HTTPSConnection(host)
