@@ -5,7 +5,19 @@ A tiny self-evolving Python script. It reads a target script, asks an AI to impr
 ## Usage
 
 ```bash
-python notskynet.py your-endpoint.com/v1/chat/completions
+python notskynet.py <endpoint> [prompt] [repo] [token]
+```
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `endpoint` | yes | OpenAI-compatible API, e.g. `your-endpoint.com/v1/chat/completions` |
+| `prompt` | no | Evolution direction, e.g. `"Add error handling"` (default: `"Improve and evolve this code"`) |
+| `repo` | no | GitHub repo to push evolved code to, e.g. `github.com/user/repo.git` |
+| `token` | no | GitHub personal access token (only needed with `repo`) |
+
+**Example — custom prompt + auto-push:**
+```bash
+python notskynet.py your-endpoint.com/v1/chat/completions "Make it faster" github.com/user/repo.git ghp_yourtoken
 ```
 
 Point it at any OpenAI-compatible endpoint. It will run `ITER` evolution cycles on `main.py`.
