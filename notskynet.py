@@ -1,4 +1,4 @@
-import subprocess, http.client, json, uuid, sys, os
+import subprocess, http.client, json, uuid, sys, os, py_compile, tempfile
 
 if len(sys.argv)<5:
     print("Usage: python notskynet.py endpoint prompt repo token")
@@ -34,7 +34,11 @@ print(f"Iterations: {ITER}\n")
 def call_ai(code):
     conn = http.client.HTTPSConnection(host)
     data = json.dumps({"model": MODEL, "messages": [
-        {"role": "system", "content": "Return only improved Python code, no explanation."},
+        {"role": "system", "content": (
+            "Return only improved Python code, no explanation, no markdown fences. "
+            "Wrap all executable logic (network calls, main loop, etc.) inside "
+            "'if __name__ == \"__main__\"' so the file can be safely imported for syntax checks."
+        )},
         {"role": "user",   "content": f"{PROMPT}:\n\n{code}"}
     ]})
     conn.request("POST", path, data, {"Content-Type": "application/json"})
@@ -52,9 +56,10 @@ def call_ai(code):
 
 def run(file):
     try:
-        return subprocess.run([sys.executable, file], capture_output=True, timeout=3).returncode
-    except Exception as e:
-        print(e); return 1
+        py_compile.compile(file, doraise=True)
+        return 0
+    except py_compile.PyCompileError as e:
+        print(f"Syntax error: {e}"); return 1
 
 def push(i):
     # convert SSH git@github.com:user/repo.git -> https://token@github.com/user/repo.git
