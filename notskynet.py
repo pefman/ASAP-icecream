@@ -1,14 +1,14 @@
 import subprocess, http.client, json, uuid, sys, os
 
-if len(sys.argv)<2:
-    print("Usage: python notskynet.py endpoint [prompt] [repo] [token]")
+if len(sys.argv)<5:
+    print("Usage: python notskynet.py endpoint prompt repo token")
     sys.exit(1)
 
 host, path = sys.argv[1].split("/",1)
 path = "/" + path
 SCRIPT = "main.py"
 ITER   = 5
-PROMPT = sys.argv[2] if len(sys.argv)>2 else "Improve and evolve this code"
+PROMPT = sys.argv[2]
 
 def get_model():
     conn = http.client.HTTPSConnection(host)
@@ -18,8 +18,8 @@ def get_model():
 
 MODEL = get_model()
 print(f"Using model: {MODEL}")
-REPO   = sys.argv[3] if len(sys.argv)>3 else None
-TOKEN  = sys.argv[4] if len(sys.argv)>4 else None
+REPO  = sys.argv[3]
+TOKEN = sys.argv[4]
 
 def call_ai(code):
     conn = http.client.HTTPSConnection(host)
@@ -50,7 +50,7 @@ for i in range(ITER):
     with open(tmp,"w") as f: f.write(new_code)
     if run(tmp)==0:
         with open(SCRIPT,"w") as f: f.write(new_code)
-        if REPO and TOKEN: push(i)
+        push(i)
         print(f"[{i}] Success!")
     else:
         print(f"[{i}] Failed, skipping.")

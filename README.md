@@ -8,14 +8,15 @@ A tiny self-evolving Python script. It reads a target script, asks an AI to impr
 python notskynet.py <endpoint> [prompt] [repo] [token]
 ```
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `endpoint` | yes | OpenAI-compatible API, e.g. `your-endpoint.com/v1/chat/completions` |
-| `prompt` | no | Evolution direction, e.g. `"Add error handling"` (default: `"Improve and evolve this code"`) |
-| `repo` | no | GitHub repo to push evolved code to, e.g. `github.com/user/repo.git` |
-| `token` | no | GitHub personal access token (only needed with `repo`) |
+All arguments are required:
 
-**Example — custom prompt + auto-push:**
+| Argument | Description |
+|----------|-------------|
+| `endpoint` | OpenAI-compatible API, e.g. `your-endpoint.com/v1/chat/completions` |
+| `prompt` | Evolution direction, e.g. `"Make it faster and add logging"` |
+| `repo` | GitHub repo to push evolved code to, e.g. `github.com/user/repo.git` |
+| `token` | GitHub personal access token |
+
 ```bash
 python notskynet.py your-endpoint.com/v1/chat/completions "Make it faster" github.com/user/repo.git ghp_yourtoken
 ```
