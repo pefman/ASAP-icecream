@@ -36,7 +36,7 @@ Point it at any OpenAI-compatible endpoint. It will run `ITER` evolution cycles 
 |----------|---------|-------------|
 | `SCRIPT` | `main.py` | File to evolve |
 | `ITER`   | `5`      | Number of evolution cycles |
-| `MODEL`  | `Qwen3.5-35B-A3B-UD-Q4_K_XL` | Model to use |
+| `MODEL`  | auto     | Largest model from `/v1/models` (picked at startup) |
 
 ## Requirements
 

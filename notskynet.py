@@ -8,8 +8,16 @@ host, path = sys.argv[1].split("/",1)
 path = "/" + path
 SCRIPT = "main.py"
 ITER   = 5
-MODEL  = "Qwen3.5-35B-A3B-UD-Q4_K_XL"
 PROMPT = sys.argv[2] if len(sys.argv)>2 else "Improve and evolve this code"
+
+def get_model():
+    conn = http.client.HTTPSConnection(host)
+    conn.request("GET", "/v1/models")
+    models = json.loads(conn.getresponse().read()).get("data", [])
+    return max(models, key=lambda m: m.get("meta",{}).get("n_params",0))["id"]
+
+MODEL = get_model()
+print(f"Using model: {MODEL}")
 REPO   = sys.argv[3] if len(sys.argv)>3 else None
 TOKEN  = sys.argv[4] if len(sys.argv)>4 else None
 
