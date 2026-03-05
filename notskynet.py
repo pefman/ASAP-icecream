@@ -9,7 +9,8 @@ if "://" in _url:
     _url = _url.split("://", 1)[1]
 _parts = _url.split("/", 1)
 host = _parts[0]
-path = "/" + _parts[1] if len(_parts) > 1 else "/"
+_raw_path = "/" + _parts[1] if len(_parts) > 1 else ""
+path = _raw_path if _raw_path and _raw_path != "/" else "/v1/chat/completions"
 SCRIPT = __file__
 ITER   = 5
 PROMPT = sys.argv[2]
@@ -38,7 +39,11 @@ def call_ai(code):
     ]})
     conn.request("POST", path, data, {"Content-Type": "application/json"})
     resp = conn.getresponse()
-    content = json.loads(resp.read())["choices"][0]["message"]["content"]
+    raw = resp.read()
+    parsed = json.loads(raw)
+    if "choices" not in parsed:
+        raise RuntimeError(f"Unexpected API response: {raw.decode()[:500]}")
+    content = parsed["choices"][0]["message"]["content"]
     # strip markdown code fences if model wraps response
     lines = content.strip().splitlines()
     if lines[0].startswith("```"): lines = lines[1:]
@@ -52,7 +57,12 @@ def run(file):
         print(e); return 1
 
 def push(i):
-    url = f"https://{TOKEN}@{REPO}"
+    # convert SSH git@github.com:user/repo.git -> https://token@github.com/user/repo.git
+    _repo = REPO
+    if _repo.startswith("git@"):
+        _repo = _repo.replace(":", "/", 1).replace("git@", "https://", 1)
+    _repo_parts = _repo.split("://", 1)
+    url = f"{_repo_parts[0]}://{TOKEN}@{_repo_parts[1]}"
     subprocess.run(["git","add",SCRIPT], capture_output=True)
     subprocess.run(["git","commit","-m",f"evolve [{i}]"], capture_output=True)
     r = subprocess.run(["git","push",url,"HEAD:main"], capture_output=True)
