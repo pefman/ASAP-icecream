@@ -17,7 +17,12 @@ def get_model():
     return max(models, key=lambda m: m.get("meta",{}).get("n_params",0))["id"]
 
 MODEL = get_model()
-print(f"Using model: {MODEL}")
+print(f"Endpoint : {host}{path}")
+print(f"Model    : {MODEL}")
+print(f"Script   : {SCRIPT}")
+print(f"Prompt   : {PROMPT}")
+print(f"Repo     : {REPO}")
+print(f"Iterations: {ITER}\n")
 REPO  = sys.argv[3]
 TOKEN = sys.argv[4]
 
@@ -38,7 +43,7 @@ def call_ai(code):
 
 def run(file):
     try:
-        return subprocess.run(["python", file], capture_output=True, timeout=3).returncode
+        return subprocess.run([sys.executable, file], capture_output=True, timeout=3).returncode
     except Exception as e:
         print(e); return 1
 
@@ -46,17 +51,23 @@ def push(i):
     url = f"https://{TOKEN}@{REPO}"
     subprocess.run(["git","add",SCRIPT], capture_output=True)
     subprocess.run(["git","commit","-m",f"evolve [{i}]"], capture_output=True)
-    subprocess.run(["git","push",url,"HEAD:main"], capture_output=True)
+    r = subprocess.run(["git","push",url,"HEAD:main"], capture_output=True)
+    if r.returncode == 0: print(f"[{i}] Pushed to {REPO}")
+    else: print(f"[{i}] Push failed: {r.stderr.decode().strip()}")
 
 for i in range(ITER):
+    print(f"[{i}] Reading {SCRIPT}...")
     with open(SCRIPT) as f: code = f.read()
+    print(f"[{i}] Asking AI to evolve ({len(code)} chars)...")
     new_code = call_ai(code)
+    print(f"[{i}] Got response ({len(new_code)} chars). Testing...")
     tmp = f"{SCRIPT}_{uuid.uuid4().hex[:4]}.py"
     with open(tmp,"w") as f: f.write(new_code)
     if run(tmp)==0:
+        print(f"[{i}] Test passed. Applying changes...")
         with open(SCRIPT,"w") as f: f.write(new_code)
         push(i)
-        print(f"[{i}] Success!")
+        print(f"[{i}] Done!")
     else:
-        print(f"[{i}] Failed, skipping.")
+        print(f"[{i}] Test failed, skipping.")
     os.remove(tmp)
