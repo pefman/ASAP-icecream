@@ -32,14 +32,18 @@ print(f"Repo      : {REPO}")
 print(f"Iterations: {ITER}\n")
 
 def call_ai(code):
+    system_msg = (
+        "Return only improved Python code, no explanation, no markdown fences. "
+        "Wrap all executable logic (network calls, main loop, etc.) inside "
+        "'if __name__ == \"__main__\"' so the file can be safely imported for syntax checks."
+    )
+    user_msg = f"{PROMPT}:\n\n{code}"
+    print(f"\n--- SYSTEM PROMPT ---\n{system_msg}")
+    print(f"\n--- USER PROMPT ({len(user_msg)} chars) ---\n{user_msg[:500]}{'...' if len(user_msg)>500 else ''}")
     conn = http.client.HTTPSConnection(host)
     data = json.dumps({"model": MODEL, "messages": [
-        {"role": "system", "content": (
-            "Return only improved Python code, no explanation, no markdown fences. "
-            "Wrap all executable logic (network calls, main loop, etc.) inside "
-            "'if __name__ == \"__main__\"' so the file can be safely imported for syntax checks."
-        )},
-        {"role": "user",   "content": f"{PROMPT}:\n\n{code}"}
+        {"role": "system", "content": system_msg},
+        {"role": "user",   "content": user_msg}
     ]})
     conn.request("POST", path, data, {"Content-Type": "application/json"})
     resp = conn.getresponse()
@@ -52,7 +56,9 @@ def call_ai(code):
     lines = content.strip().splitlines()
     if lines[0].startswith("```"): lines = lines[1:]
     if lines and lines[-1].startswith("```"): lines = lines[:-1]
-    return "\n".join(lines)
+    result = "\n".join(lines)
+    print(f"\n--- AI RESPONSE ({len(result)} chars) ---\n{result[:500]}{'...' if len(result)>500 else ''}\n--- END RESPONSE ---\n")
+    return result
 
 def run(file):
     try:
