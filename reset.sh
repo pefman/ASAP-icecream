@@ -1,5 +1,5 @@
 #!/bin/bash
 git fetch origin
-git reset --hard d7f01c5934ab38452f7f61ce0c580f6ff479b529
+git reset --hard fe26447410e342ea5d803313c15d609b5760f6da
 git push origin main --force
-echo "Reset to baseline commit d7f01c5"
+echo "Reset to baseline commit fe26447"
