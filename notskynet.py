@@ -29,7 +29,12 @@ def call_ai(code):
     ]})
     conn.request("POST", path, data, {"Content-Type": "application/json"})
     resp = conn.getresponse()
-    return json.loads(resp.read())["choices"][0]["message"]["content"]
+    content = json.loads(resp.read())["choices"][0]["message"]["content"]
+    # strip markdown code fences if model wraps response
+    lines = content.strip().splitlines()
+    if lines[0].startswith("```"): lines = lines[1:]
+    if lines and lines[-1].startswith("```"): lines = lines[:-1]
+    return "\n".join(lines)
 
 def run(file):
     try:
